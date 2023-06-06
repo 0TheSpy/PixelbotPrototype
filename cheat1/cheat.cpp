@@ -142,7 +142,7 @@ bool TakeScreenshot(int szx = Width, int szy = Height)
 	HDC     hdcShot = CreateCompatibleDC(hWindow);
 	HBITMAP hbmap = CreateCompatibleBitmap(hWindow, szx, szy); 
 	HGDIOBJ old_obj = SelectObject(hdcShot, hbmap);
-	BOOL    bRet = BitBlt(hdcShot, 0, 0, szx, szy, hWindow, tSize.left , tSize.top , SRCCOPY);
+	BOOL    bRet = BitBlt(hdcShot, 0, 0, szx, szy, hWindow, tSize.left + scrCenterX - szx / 2, tSize.top + scrCenterY - szy / 2, SRCCOPY);
 	 
 	if (!GetObject(hbmap, sizeof(BITMAP), (LPSTR)&bm))
 		return false;
@@ -175,30 +175,38 @@ bool TakeScreenshot(int szx = Width, int szy = Height)
 		{ 
 			int p = (bm.bmHeight - y - 1) * bm.bmWidth + x; 
 
-			if (mineteam) {
-				if (pPixels[p].rgbRed > 220 && pPixels[p].rgbGreen > 220 && pPixels[p].rgbBlue < 25)
-				{
-					printfdbg("red found at %d, %d (%d,%d,%d)\n", x + scan.RcWindow.left, y + scan.RcWindow.top, pPixels[p].rgbRed, pPixels[p].rgbGreen, pPixels[p].rgbBlue);
-					POINT point;
-					GetCursorPos(&point); 
-					deltax = (x + scan.RcWindow.left) - point.x;
-					deltay = (y + scan.RcWindow.top) - point.y; 
-					needaim = 1;
-					break;
+			__try
+			{
+				if (mineteam) {
+					if (pPixels[p].rgbRed > 220 && pPixels[p].rgbGreen > 220 && pPixels[p].rgbBlue < 25)
+					{
+						//printfdbg("red found at %d, %d (%d,%d,%d)\n", x + scan.RcWindow.left, y + scan.RcWindow.top, pPixels[p].rgbRed, pPixels[p].rgbGreen, pPixels[p].rgbBlue);
+						POINT point;
+						GetCursorPos(&point);
+						deltax = (x + scan.RcWindow.left) - point.x;
+						deltay = (y + scan.RcWindow.top) - point.y;
+						needaim = 1;
+						break;
+					} 
 				}
-
-			}
-			else {
-				if (pPixels[p].rgbRed < 25 && pPixels[p].rgbGreen > 210 && pPixels[p].rgbBlue > 210)
-				{
-					printfdbg("blu found at %d, %d (%d,%d,%d)\n", x + scan.RcWindow.left, y + scan.RcWindow.top, pPixels[p].rgbRed, pPixels[p].rgbGreen, pPixels[p].rgbBlue);
-					POINT point;
-					GetCursorPos(&point);
-					deltax = (x + scan.RcWindow.left) - point.x;
-					deltay = (y + scan.RcWindow.top) - point.y;
-					needaim = 1;
-					break;
+				else {
+					if (pPixels[p].rgbRed < 25 && pPixels[p].rgbGreen > 210 && pPixels[p].rgbBlue > 210)
+					{
+						//printfdbg("blu found at %d, %d (%d,%d,%d)\n", x + scan.RcWindow.left, y + scan.RcWindow.top, pPixels[p].rgbRed, pPixels[p].rgbGreen, pPixels[p].rgbBlue);
+						POINT point;
+						GetCursorPos(&point);
+						deltax = (x + scan.RcWindow.left) - point.x;
+						deltay = (y + scan.RcWindow.top) - point.y;
+						needaim = 1;
+						break;
+					}
 				}
+			} 
+			__except (
+				GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION
+				? EXCEPTION_EXECUTE_HANDLER
+				: EXCEPTION_CONTINUE_SEARCH) {
+				printfdbg("Catched error\n");
 			}
 			 
 			if (GetAsyncKeyState(VK_DELETE))
@@ -207,6 +215,14 @@ bool TakeScreenshot(int szx = Width, int szy = Height)
 			}
 		}
 	}
+
+	// save bitmap to clipboard for easy testing
+	/*
+	OpenClipboard(NULL);
+	EmptyClipboard();
+	SetClipboardData(CF_BITMAP, hbmap);
+	CloseClipboard();
+	*/
 
 	// clean up
 	if (pPixels)free(pPixels);
@@ -255,13 +271,14 @@ void Aim()
 			POINT point;
 			GetCursorPos(&point);
 			SetCursorPos(deltax / aimsmooth + point.x, deltay / aimsmooth + point.y);
-			printfdbg("set %d %d\n", deltax, deltay);
+			//printfdbg("set %d %d\n", deltax, deltay);
 			needaim = 0;
 		}
 		Sleep(1);
 	}
 }
 
+ 
 void TriggerCheck()
 {
 	bool exiting = 0;  
@@ -281,7 +298,7 @@ void TriggerCheck()
 				else mode = 2;
 				Sleep(300);  
 			}
-
+			   
 			if (GetAsyncKeyState(VK_HOME) < 0) {
 				if (mineteam == 0)
 					mineteam = 1;
