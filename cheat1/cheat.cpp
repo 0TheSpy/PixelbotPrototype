@@ -237,31 +237,58 @@ bool TakeScreenshot(int szx = Width, int szy = Height)
 void Aim()
 {
 	int c1, c2, c3;
+	bool fired = false;
 	while (1) {
 
 		if (tWnd == GetForegroundWindow() && mode == 2) {
 
 			c1 = pixel & 0x00FF0000; c2 = pixel & 0x0000FF00; c3 = pixel & 0x000000FF; 
-			if (mineteam && c1 > 0xB00000 && c2 > 0xC000 && c3 < 0x24 ||
-				!mineteam && c1 < 0x240000 && c2 > 0xC000 && c3 > 0xB0)
-			{
+			if ((mineteam && c1 > 0xB00000 && c2 > 0xC000 && c3 < 0x24 ||
+				!mineteam && c1 < 0x240000 && c2 > 0xC000 && c3 > 0xB0) && (GetAsyncKeyState(0x45) < 0)) //is E btn pressed?
+			{ 
 				int DelayBefore = std::rand() % (tbdelaymax + 1 - tbdelaymin) + tbdelaymin;
 				printfdbg("DelayBefore %d\n", DelayBefore);
 				Sleep(DelayBefore);
 				  
 				while (true) {
 					c1 = pixel & 0x00FF0000; c2 = pixel & 0x0000FF00; c3 = pixel & 0x000000FF;
-					if (mineteam && c1 > 0xB00000 && c2 > 0xC000 && c3 < 0x24 ||
-						!mineteam && c1 < 0x240000 && c2 > 0xC000 && c3 > 0xB0) //still need to shoot?
+					if ((mineteam && c1 > 0xB00000 && c2 > 0xC000 && c3 < 0x24 ||
+						!mineteam && c1 < 0x240000 && c2 > 0xC000 && c3 > 0xB0) && (GetAsyncKeyState(0x45) < 0)) //still need to shoot?
 					{
-						mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-						Sleep(10);
-						mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-						int DelayBetween = std::rand() % tbdelaybetween_rand * 2 - tbdelaybetween_rand + tbdelaybetween;
-						printfdbg("DelayBetween %d\n", DelayBetween);
-						Sleep(DelayBetween);
+						if (tbdelaybetween > 20)
+						{
+							mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+							Sleep(10);
+							mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+							int DelayBetween = std::rand() % tbdelaybetween_rand * 2 - tbdelaybetween_rand + tbdelaybetween;
+							printfdbg("DelayBetween %d\n", DelayBetween);
+							Sleep(DelayBetween);
+						}
+						else //no delay
+						{ 
+							if (!fired) {
+							INPUT Input = { 0 };  
+							Input.type = INPUT_MOUSE;  
+							Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;  
+							SendInput(1, &Input, sizeof(INPUT));  
+							fired = true;
+							printfdbg("LeftDown\n");
+							}
+						}
+					} 
+					else 
+					{
+						if (fired) {
+							INPUT Input = { 0 };  
+							Input.type = INPUT_MOUSE;  
+							Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;  
+							SendInput(1, &Input, sizeof(INPUT));  
+							fired = false;
+							printfdbg("LeftUp\n");
+						}
+
+						break;
 					}
-					else break;
 				} 
 			}
 		}
