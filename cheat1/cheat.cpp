@@ -84,10 +84,11 @@ void myDraw() {
 
 		DrawString((char*)AY_OBFUSCATE("Shoot delay between (KEY PLUS/MINUS): "), 5, 105, 255, 255, 255, 255, pFont);
 		std::stringstream sstream5;
-		sstream5 << tbdelaybetween;
+		if (tbdelaybetween > 20)
+			sstream5 << tbdelaybetween;
+		else sstream5 << "NULL";
 		std::string result5 = sstream5.str();
 		DrawString((char*)(result5.c_str()), 330, 105, 255, 0, 255, 0, pFont);
-
 		
 	}
 
