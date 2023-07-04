@@ -38,7 +38,7 @@ int Width = GetSystemMetrics(SM_CXSCREEN);
 int Height = GetSystemMetrics(SM_CYSCREEN);
 const MARGINS Margin = { 0, 0, Width, Height };
 int sdeltaX, sdeltaY, len, aimfov = 30, mineteam = 1, deltax, deltay,  aimsmooth = 1, 
-mode = 2, tbdelaymin = 200, tbdelaymax = 300, tbdelaybetween = 70, tbdelaybetween_rand = 20;
+mode = 2, tbdelaymin = 200, tbdelaymax = 300, tbdelaybetween = 20, tbdelaybetween_rand = 20;
 char lWindowName[256] = " ";
 HWND hWnd;
 LPSTR tWindowName;
