@@ -62,6 +62,15 @@ void myDraw() {
 
 		DrawFilledRectangle(5 - 2, 45 - 2, 5 + 22 + 55, 45 + 22, D3DCOLOR_XRGB(255, 255, 255));
 
+		int c1 = pixel & 0x00FF0000; int c2 = pixel & 0x0000FF00; int c3 = pixel & 0x000000FF;
+		if ((mineteam && c1 > 0xB00000 && c2 > 0xC000 && c3 < 0x24 ||
+			!mineteam && c1 < 0x240000 && c2 > 0xC000 && c3 > 0xB0))
+			DrawFilledRectangle(5 - 2, 45 - 2, 5 + 22, 45 + 22, D3DCOLOR_XRGB(255, 0, 0));  
+		else
+		if ((!mineteam && c1 > 0xB00000 && c2 > 0xC000 && c3 < 0x24 ||
+			mineteam && c1 < 0x240000 && c2 > 0xC000 && c3 > 0xB0))
+			DrawFilledRectangle(5 - 2, 45 - 2, 5 + 22, 45 + 22, D3DCOLOR_XRGB(0, 255, 0));
+		
 		p_Device->Clear(1, &rect, D3DCLEAR_TARGET | D3DCLEAR_TARGET, pixel, 0, 0);
 		 
 		std::stringstream sstream;
